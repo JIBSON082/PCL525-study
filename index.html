@@ -497,4 +497,147 @@ function PdfModal({ module, onClose }) {
     // eslint-disable-next-line
   }, []);
 
-  function handleClose()
+  function handleClose() {
+    if (reducedMotion()) { onClose(); return; }
+    gsap.to(panelRef.current, { opacity: 0, scale: 0.96, y: 14, duration: 0.2, ease: 'power2.in' });
+    gsap.to(overlayRef.current, { opacity: 0, duration: 0.22, ease: 'power2.in', onComplete: onClose });
+  }
+
+  const driveUrl = `https://drive.google.com/file/d/${module.driveId}/preview`;
+
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-8"
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
+      <div
+        ref={panelRef}
+        className="flex h-full max-h-[calc(100dvh-2rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
+      >
+        <div className="flex items-center justify-between border-b border-[var(--border-soft)] px-5 py-4">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--fg-subtle)]">{module.slide}</p>
+            <h3 className="truncate font-display text-base font-semibold text-[var(--fg)] sm:text-lg">{module.title}</h3>
+          </div>
+          <button
+            onClick={handleClose}
+            aria-label="Close"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-[var(--fg-muted)] transition hover:border-[var(--fg-subtle)] hover:text-[var(--fg)]"
+          >
+            <XIcon size={16} />
+          </button>
+        </div>
+
+        <div className="relative flex-1 bg-black/30">
+          {!loaded && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="spin h-6 w-6 rounded-full border-2 border-[var(--border)] border-t-[var(--fg-muted)]" />
+            </div>
+          )}
+          <iframe
+            src={driveUrl}
+            title={module.title}
+            className="h-full w-full"
+            onLoad={() => setLoaded(true)}
+            allow="autoplay"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------- app ---------------------------------- */
+
+function App() {
+  const [view, setView] = useState('landing');
+  const [name, setName] = useState('');
+  const [currentSectionId, setCurrentSectionId] = useState(null);
+  const [visited, setVisited] = useState(() => new Set());
+  const [activeModule, setActiveModule] = useState(null);
+  const stageRef = useRef(null);
+
+  const totalModules = useMemo(
+    () => Object.values(RESOURCES).reduce((sum, s) => sum + s.modules.length, 0),
+    []
+  );
+
+  useLayoutEffect(() => {
+    if (reducedMotion() || !stageRef.current) return;
+    const targets = stageRef.current.querySelectorAll('[data-animate]');
+    if (!targets.length) return;
+    gsap.fromTo(
+      targets,
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.05 }
+    );
+  }, [view, currentSectionId]);
+
+  function handleLandingSubmit(submittedName) {
+    setName(submittedName);
+    setView('dashboard');
+  }
+
+  function handleOpenSection(sectionId) {
+    setCurrentSectionId(sectionId);
+    setView('section');
+  }
+
+  function handleBack() {
+    setCurrentSectionId(null);
+    setView('dashboard');
+  }
+
+  function handleOpenModule(mod) {
+    setVisited((prev) => {
+      const next = new Set(prev);
+      next.add(mod.id);
+      return next;
+    });
+    if (mod.type === 'link') {
+      window.open(mod.href, '_blank', 'noopener,noreferrer');
+    } else {
+      setActiveModule(mod);
+    }
+  }
+
+  const currentSection = currentSectionId ? RESOURCES[currentSectionId] : null;
+
+  return (
+    <div ref={stageRef} className="relative z-10">
+      <AmbientBackground />
+
+      {view === 'landing' && <Landing onSubmit={handleLandingSubmit} />}
+
+      {view === 'dashboard' && (
+        <Dashboard
+          name={name}
+          sections={RESOURCES}
+          visited={visited}
+          totalModules={totalModules}
+          onOpenSection={handleOpenSection}
+        />
+      )}
+
+      {view === 'section' && currentSection && (
+        <SectionView
+          section={currentSection}
+          visited={visited}
+          onBack={handleBack}
+          onOpenModule={handleOpenModule}
+        />
+      )}
+
+      {activeModule && (
+        <PdfModal module={activeModule} onClose={() => setActiveModule(null)} />
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
