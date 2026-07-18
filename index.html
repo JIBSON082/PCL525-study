@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>PCL 525 — Study Guide</title>
+<meta name="description" content="PCL 525 study chart — flashcards and Q&A material for Dr Olugbake, Prof Joda and Dr Ogbo." />
+<meta name="theme-color" content="#0A0D0F" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 14'%3E%3Cpath d='M7 1h10a6 6 0 0 1 0 12H7A6 6 0 0 1 7 1Z' fill='%234C8DFF'/%3E%3Cpath d='M12 1v12' stroke='%230A0D0F' stroke-width='1.6'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.0/babel.min.js"></script>
+
+<style>
+  :root{
+    --bg:#0A0D0F;
+    --bg-elevated:#12171A;
+    --bg-elevated-2:#171D21;
+    --border:#232B2F;
+    --border-soft:#1A2024;
+    --fg:#EDF1F2;
+    --fg-muted:#97A3A8;
+    --fg-subtle:#5C6B70;
+  }
+  *{ -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  html{ background: var(--bg); color-scheme: dark; }
+  body{
+    margin:0;
+    min-height:100dvh;
+    background:
+      radial-gradient(circle at 15% 8%, rgba(76,141,255,0.07), transparent 42%),
+      radial-gradient(circle at 88% 12%, rgba(242,169,60,0.05), transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(51,199,126,0.05), transparent 45%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--fg);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .font-display{ font-family:'Space Grotesk','Inter',sans-serif; letter-spacing:-0.02em; }
+  .font-mono{ font-family:'JetBrains Mono',ui-monospace,'SFMono-Regular',monospace; }
+
+  .grid-texture{
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 34px 34px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% 28%, black 30%, transparent 88%);
+    mask-image: radial-gradient(ellipse 75% 55% at 50% 28%, black 30%, transparent 88%);
+  }
+
+  ::selection{ background: rgba(76,141,255,0.35); color:#fff; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background: var(--border); border-radius:999px; }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--fg-subtle); }
+
+  :focus-visible{ outline: 2px solid var(--fg-muted); outline-offset: 2px; border-radius: 6px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  .spin{ animation: spin 0.8s linear infinite; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  iframe{ border:0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useLayoutEffect, useRef, useMemo } = React;
+
+/* ---------------------------------- data ---------------------------------- */
+
+const RESOURCES = {
+  olugbake: {
+    id: 'olugbake',
+    code: 'SEC-A',
+    name: 'Dr Olugbake',
+    color: 'blue',
+    modules: [
+      {
+        id: 'olugbake-1',
+        slide: 'Slide 1',
+        title: 'Comprehensive Flashcard App',
+        type: 'link',
+        href: 'https://pcl-525study.vercel.app/',
+        meta: 'External resource · Interactive',
+      },
+      {
+        id: 'olugbake-2',
+        slide: 'Slides 2–4',
+        title: 'Comprehensive Q&A',
+        type: 'pdf',
+        driveId: '1ZIVbS5EIkGxC9mDolTnF3hzcR_Xbtp3y',
+        meta: 'PDF · Slides 2–4',
+      },
+    ],
+  },
+  joda: {
+    id: 'joda',
+    code: 'SEC-B',
+    name: 'Prof Joda',
+    color: 'amber',
+    modules: [
+      {
+        id: 'joda-1',
+        slide: 'Slide 1',
+        title: 'Public Health Q&A',
+        type: 'pdf',
+        driveId: '1dRQWyVUR2t58sIg-6YkKefrP5LmLdpEF',
+        meta: 'PDF · Slide 1',
+      },
+      {
+        id: 'joda-2',
+        slide: 'Slide 2',
+        title: 'Health Education Q&A',
+        type: 'pdf',
+        driveId: '1wdXBpsmN4fN7fpo_rcNB6vpD_MaMloiD',
+        meta: 'PDF · Slide 2',
+      },
+    ],
+  },
+  ogbo: {
+    id: 'ogbo',
+    code: 'SEC-C',
+    name: 'Dr Ogbo',
+    color: 'green',
+    modules: [
+      {
+        id: 'ogbo-1',
+        slide: 'Pages 1–21',
+        title: 'Role of Pharmacist in Nutrition Q&A',
+        type: 'pdf',
+        driveId: '16EX6xZd7MzLGONYO2cvGQkWc-gplnTJA',
+        meta: 'PDF · Pages 1–21',
+      },
+    ],
+  },
+};
+
+const COLOR_MAP = {
+  blue:  { accent: '#4C8DFF', soft: 'rgba(76,141,255,0.14)'  },
+  amber: { accent: '#F2A93C', soft: 'rgba(242,169,60,0.14)'  },
+  green: { accent: '#33C77E', soft: 'rgba(51,199,126,0.14)' },
+};
+
+function reducedMotion(){
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function toTitleCase(str){
+  return str.replace(/\s+/g, ' ').trim().split(' ').map(function(w){
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+
+function getGreeting(){
+  const h = new Date().getHours();
+  if (h < 5) return 'Burning the midnight oil';
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  if (h < 21) return 'Good evening';
+  return 'Still going strong';
+}
+
+/* ---------------------------------- icons ---------------------------------- */
+
+const iconBase = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' };
+
+function ArrowRightIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="M5 12h14" /><path d="m13 6 6 6-6 6" />
+    </svg>
+  );
+}
+function ArrowLeftIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="M19 12H5" /><path d="m11 18-6-6 6-6" />
+    </svg>
+  );
+}
+function XIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+    </svg>
+  );
+}
+function ChevronRightIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+function CheckIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  );
+}
+function FileTextIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <path d="M14 2v6h6" />
+      <path d="M9 13h6" /><path d="M9 17h6" /><path d="M9 9h1" />
+    </svg>
+  );
+}
+function ExternalLinkIcon({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" {...iconBase} className={className}>
+      <path d="M15 3h6v6" /><path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </svg>
+  );
+}
+function CapsuleMark({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size * 0.58} viewBox="0 0 24 14" className={className}>
+      <path d="M7 1h10a6 6 0 0 1 0 12H7A6 6 0 0 1 7 1Z" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 1v12" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+/* ------------------------------ ambient background ------------------------------ */
+
+function AmbientBackground() {
+  return <div aria-hidden="true" className="grid-texture pointer-events-none fixed inset-0 z-0" />;
+}
+
+/* ---------------------------------- landing ---------------------------------- */
+
+function Landing({ onSubmit }) {
+  const [value, setValue] = useState('');
+  const containerRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (reducedMotion()) return;
+    const ctx = gsap.context(() => {
+      gsap.to('.capsule-float', {
+        y: (i) => (i % 2 === 0 ? -18 : 18),
+        x: (i) => (i % 2 === 0 ? 12 : -12),
+        rotation: (i) => (i % 2 === 0 ? 10 : -10),
+        duration: (i) => 4.5 + i * 0.6,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        stagger: 0.2,
+      });
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    onSubmit(toTitleCase(trimmed));
+  }
+
+  const capsules = [
+    { pos: 'left-[6%] top-[16%]', size: 'h-8 w-24', color: 'rgba(76,141,255,0.32)' },
+    { pos: 'right-[10%] top-[24%]', size: 'h-9 w-28', color: 'rgba(242,169,60,0.28)' },
+    { pos: 'left-[12%] bottom-[20%]', size: 'h-7 w-20', color: 'rgba(51,199,126,0.3)' },
+    { pos: 'right-[16%] bottom-[14%]', size: 'h-10 w-32', color: 'rgba(76,141,255,0.2)' },
+    { pos: 'left-[46%] top-[6%]', size: 'h-6 w-16', color: 'rgba(237,241,242,0.14)' },
+  ];
+
+  return (
+    <div ref={containerRef} className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-6 py-16">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        {capsules.map((c, i) => (
+          <span
+            key={i}
+            className={`capsule-float absolute ${c.pos} ${c.size} rounded-full blur-md`}
+            style={{ background: `linear-gradient(90deg, ${c.color}, transparent)` }}
+          />
+        ))}
+      </div>
+
+      <div
+        data-animate
+        className="relative w-full max-w-md rounded-3xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:p-10"
+      >
+        <div data-animate className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-[var(--fg-muted)]">
+          <CapsuleMark size={13} /> PCL 525 · Clinical Pharmacy
+        </div>
+
+        <h1 data-animate className="font-display text-4xl font-semibold leading-[1.08] text-[var(--fg)] sm:text-5xl">
+          Your study<br />chart, sorted.
+        </h1>
+
+        <p data-animate className="mt-4 text-sm leading-relaxed text-[var(--fg-muted)] sm:text-base">
+          Three lecturers, five resources, one place. Tell us your name and we'll pull up your chart.
+        </p>
+
+        <form data-animate onSubmit={handleSubmit} className="mt-8 space-y-3">
+          <label htmlFor="student-name" className="sr-only">Your name</label>
+          <input
+            id="student-name"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="e.g. Ada Chukwu"
+            autoComplete="name"
+            autoFocus
+            className="h-12 w-full rounded-xl border border-[var(--border)] bg-black/20 px-4 text-[15px] text-[var(--fg)] outline-none transition placeholder:text-[var(--fg-subtle)] focus:border-[var(--fg-muted)] focus:ring-2 focus:ring-white/10"
+          />
+          <button
+            type="submit"
+            disabled={!value.trim()}
+            className="group flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[var(--fg)] text-[15px] font-medium text-[var(--bg)] transition disabled:cursor-not-allowed disabled:opacity-40 enabled:hover:opacity-90 enabled:active:scale-[0.98]"
+          >
+            Begin studying
+            <ArrowRightIcon size={16} className="transition-transform group-enabled:group-hover:translate-x-0.5" />
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------- dashboard ---------------------------------- */
+
+function Dashboard({ name, sections, visited, totalModules, onOpenSection }) {
+  const visitedCount = visited.size;
+  const sectionList = Object.values(sections);
+
+  return (
+    <div className="mx-auto min-h-[100dvh] w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14 lg:max-w-4xl">
+      <header data-animate className="mb-10 flex items-center justify-between">
+        <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.15em] text-[var(--fg-muted)]">
+          <CapsuleMark size={15} /> PCL 525
+        </div>
+        <div className="flex items-center gap-2 rounded-full border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--fg-muted)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          {visitedCount}/{totalModules} reviewed
+        </div>
+      </header>
+
+      <div data-animate className="mb-10">
+        <p className="font-mono text-xs uppercase tracking-[0.15em] text-[var(--fg-subtle)]">{getGreeting()}</p>
+        <h1 className="mt-2 font-display text-3xl font-semibold text-[var(--fg)] sm:text-4xl">{name}</h1>
+        <p className="mt-3 max-w-md text-sm text-[var(--fg-muted)]">
+          Pick a lecturer below to open their chart of flashcards and Q&amp;A material.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {sectionList.map((section) => {
+          const sectionVisited = section.modules.filter((m) => visited.has(m.id)).length;
+          const colors = COLOR_MAP[section.color];
+          return (
+            <button
+              key={section.id}
+              data-animate
+              onClick={() => onOpenSection(section.id)}
+              className="group flex w-full items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)] p-5 text-left transition hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.7)] active:translate-y-0 active:scale-[0.99] sm:p-6"
+              style={{ borderLeftWidth: '4px', borderLeftColor: colors.accent }}
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.15em]" style={{ color: colors.accent }}>
+                  {section.code}
+                </div>
+                <h2 className="mt-1 truncate font-display text-xl font-semibold text-[var(--fg)] sm:text-2xl">{section.name}</h2>
+                <p className="mt-1 text-sm text-[var(--fg-muted)]">
+                  {section.modules.length} resource{section.modules.length > 1 ? 's' : ''} · {sectionVisited}/{section.modules.length} reviewed
+                </p>
+              </div>
+              <ChevronRightIcon size={20} className="shrink-0 text-[var(--fg-subtle)] transition group-hover:translate-x-1 group-hover:text-[var(--fg)]" />
+            </button>
+          );
+        })}
+      </div>
+
+      <p data-animate className="mt-10 text-center font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--fg-subtle)]">
+        PCL 525 · {totalModules} resources across 3 lecturers
+      </p>
+    </div>
+  );
+}
+
+/* ---------------------------------- section view ---------------------------------- */
+
+function SectionView({ section, visited, onBack, onOpenModule }) {
+  const colors = COLOR_MAP[section.color];
+  const gridClass = section.modules.length > 1 ? 'sm:grid-cols-2' : 'sm:max-w-md';
+
+  return (
+    <div className="mx-auto min-h-[100dvh] w-full max-w-3xl px-5 py-10 sm:px-8 sm:py-14 lg:max-w-4xl">
+      <button
+        data-animate
+        onClick={onBack}
+        className="mb-8 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] px-3.5 py-1.5 text-xs text-[var(--fg-muted)] transition hover:border-[var(--fg-subtle)] hover:text-[var(--fg)]"
+      >
+        <ArrowLeftIcon size={14} /> Back to chart
+      </button>
+
+      <div data-animate className="mb-8 flex items-center gap-3">
+        <span className="h-10 w-1.5 shrink-0 rounded-full" style={{ background: colors.accent }} />
+        <div>
+          <p className="font-mono text-[11px] uppercase tracking-[0.15em]" style={{ color: colors.accent }}>{section.code}</p>
+          <h1 className="font-display text-2xl font-semibold text-[var(--fg)] sm:text-3xl">{section.name}</h1>
+        </div>
+      </div>
+
+      <div className={`grid grid-cols-1 gap-4 ${gridClass}`}>
+        {section.modules.map((mod) => {
+          const isVisited = visited.has(mod.id);
+          const Icon = mod.type === 'link' ? ExternalLinkIcon : FileTextIcon;
+          return (
+            <div
+              key={mod.id}
+              data-animate
+              className="relative flex flex-col justify-between rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)] p-6"
+            >
+              {isVisited && (
+                <span
+                  className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full"
+                  style={{ backgroundColor: colors.accent }}
+                  aria-label="Reviewed"
+                >
+                  <CheckIcon size={13} className="text-[var(--bg)]" />
+                </span>
+              )}
+              <div>
+                <div
+                  className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl"
+                  style={{ backgroundColor: colors.soft, color: colors.accent }}
+                >
+                  <Icon size={20} />
+                </div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--fg-subtle)]">{mod.slide}</p>
+                <h3 className="mt-1.5 font-display text-lg font-semibold leading-snug text-[var(--fg)]">{mod.title}</h3>
+                <p className="mt-1.5 text-xs text-[var(--fg-muted)]">{mod.meta}</p>
+              </div>
+              <button
+                onClick={() => onOpenModule(mod)}
+                className="mt-6 flex h-10 items-center justify-center gap-1.5 rounded-full text-sm font-medium transition active:scale-[0.98]"
+                style={{ backgroundColor: colors.accent, color: '#0A0D0F' }}
+              >
+                {mod.type === 'link' ? 'Open flashcards' : 'View PDF'}
+                <Icon size={14} />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------- pdf modal ---------------------------------- */
+
+function PdfModal({ module, onClose }) {
+  const [loaded, setLoaded] = useState(false);
+  const overlayRef = useRef(null);
+  const panelRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (reducedMotion()) return;
+    gsap.fromTo(overlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.out' });
+    gsap.fromTo(panelRef.current, { opacity: 0, scale: 0.96, y: 14 }, { opacity: 1, scale: 1, y: 0, duration: 0.35, ease: 'power3.out' });
+  }, []);
+
+  useEffect(() => {
+    function onKey(e) { if (e.key === 'Escape') handleClose(); }
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  function handleClose()
